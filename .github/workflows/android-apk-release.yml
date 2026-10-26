@@ -1,0 +1,130 @@
+name: Build & Publish Android Debug APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Compile Signed Debug APK & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses & Install SDK 36.1
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "build-tools;36.0.0" "platforms;android-36" || true
+
+      - name: Restore Debug Keystore & Environment File
+        run: |
+          if [ ! -f "debug.keystore" ]; then
+            if [ -f "debug.keystore.base64" ]; then
+              echo "Restoring debug.keystore from debug.keystore.base64..."
+              base64 --decode debug.keystore.base64 > debug.keystore
+            else
+              echo "Generating standard Android debug.keystore..."
+              keytool -genkeypair -v \
+                -keystore debug.keystore \
+                -storepass android \
+                -alias androiddebugkey \
+                -keypass android \
+                -keyalg RSA \
+                -keysize 2048 \
+                -validity 10000 \
+                -dname "CN=Android Debug,O=Android,C=US"
+            fi
+          fi
+          if [ ! -f ".env" ]; then
+            if [ -f ".env.example" ]; then
+              cp .env.example .env
+            else
+              touch .env
+            fi
+          fi
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: wrapper
+
+      - name: Extract App Metadata
+        id: meta
+        run: |
+          APP_ID=$(grep -Eo 'applicationId\s*=\s*"[^"]+"' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || echo "com.example.app")
+          VERSION_NAME=$(grep -Eo 'versionName\s*=\s*"[^"]+"' app/build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/' || echo "1.0")
+          APP_NAME=$(sed -n 's:.*<string name="app_name">\(.*\)</string>.*:\1:p' app/src/main/res/values/strings.xml | head -n 1 || echo "AndroidApp")
+          SAFE_NAME=$(echo "$APP_NAME" | tr -cd '[:alnum:]-_' | tr '[:upper:]' '[:lower:]')
+          if [ -z "$SAFE_NAME" ]; then SAFE_NAME="android-app"; fi
+          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "app_name=$APP_NAME" >> "$GITHUB_OUTPUT"
+          echo "safe_name=$SAFE_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Compile Debug APK (Gradle assembleDebug)
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Verify Generated APK & Prepare Release Assets
+        id: apk
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ] || [ ! -f "$APK_PATH" ]; then
+            echo "Error: Debug APK was not found under app/build/outputs/apk/debug/"
+            exit 1
+          fi
+          cp "$APK_PATH" app-debug.apk
+          SHA256=$(sha256sum app-debug.apk | awk '{print $1}')
+          SIZE_BYTES=$(stat -c%s app-debug.apk)
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "size_bytes=$SIZE_BYTES" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: app-debug.apk
+          if-no-files-found: error
+
+      - name: Publish Permanent GitHub Release (Latest APK)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.meta.outputs.version_name }}-build.${{ github.run_number }}
+          name: "${{ steps.meta.outputs.app_name }} v${{ steps.meta.outputs.version_name }} (Build #${{ github.run_number }})"
+          make_latest: "true"
+          prerelease: false
+          files: |
+            app-debug.apk
+          body: |
+            ## ${{ steps.meta.outputs.app_name }} — Installable Android Debug APK
+
+            - **Application ID:** `${{ steps.meta.outputs.app_id }}`
+            - **Version:** `${{ steps.meta.outputs.version_name }}` (Run `#${{ github.run_number }}`)
+            - **Commit:** `${{ github.sha }}`
+            - **APK Size:** `${{ steps.apk.outputs.size_bytes }}` bytes
+            - **SHA-256 Checksum:** `${{ steps.apk.outputs.sha256 }}`
+
+            ### Direct Permanent Download URL
+            Always downloads the latest built APK from this repository:
+            ```
+            https://github.com/${{ github.repository }}/releases/latest/download/app-debug.apk
+            ```

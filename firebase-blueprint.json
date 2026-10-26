@@ -1,0 +1,411 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Stores user profile preferences and default studio settings.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated user UID matching request.auth.uid."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User display name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Optional user email address."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Optional user avatar URL."
+        },
+        "defaultCategory": {
+          "type": "string",
+          "description": "Default video category."
+        },
+        "defaultStyle": {
+          "type": "string",
+          "description": "Default visual style preset."
+        },
+        "defaultRealism": {
+          "type": "string",
+          "description": "Default image realism mode."
+        },
+        "defaultAspectRatio": {
+          "type": "string",
+          "description": "Default aspect ratio."
+        },
+        "preferredAiModel": {
+          "type": "string",
+          "description": "Preferred image generation Gemini model."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Update server timestamp via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "displayName",
+        "defaultCategory",
+        "defaultStyle",
+        "defaultRealism",
+        "defaultAspectRatio",
+        "preferredAiModel",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ThumbnailProject": {
+      "title": "ThumbnailProject",
+      "description": "Represents a saved thumbnail design project with art direction, typography, color grading, and layer stack.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID matching request.auth.uid."
+        },
+        "title": {
+          "type": "string",
+          "description": "Project title."
+        },
+        "videoTopic": {
+          "type": "string",
+          "description": "Video topic or description."
+        },
+        "headline": {
+          "type": "string",
+          "description": "Main thumbnail headline text."
+        },
+        "subheadline": {
+          "type": "string",
+          "description": "Optional secondary subheadline text."
+        },
+        "category": {
+          "type": "string",
+          "description": "Content category."
+        },
+        "visualStyle": {
+          "type": "string",
+          "description": "Visual style preset."
+        },
+        "realism": {
+          "type": "string",
+          "description": "Image realism setting."
+        },
+        "aspectRatio": {
+          "type": "string",
+          "description": "Output aspect ratio (e.g. 16:9, 9:16, 1:1, 4:5)."
+        },
+        "compositionPreset": {
+          "type": "string",
+          "description": "Selected thumbnail composition preset."
+        },
+        "width": {
+          "type": "integer",
+          "description": "Canvas width in pixels."
+        },
+        "height": {
+          "type": "integer",
+          "description": "Canvas height in pixels."
+        },
+        "aiPrompt": {
+          "type": "string",
+          "description": "Detailed AI image generation prompt."
+        },
+        "artDirectionSummary": {
+          "type": "string",
+          "description": "Structured art direction plan summary."
+        },
+        "headlineFont": {
+          "type": "string",
+          "description": "Font family identifier for headline."
+        },
+        "headlineColorHex": {
+          "type": "string",
+          "description": "Hex color string for headline."
+        },
+        "accentColorHex": {
+          "type": "string",
+          "description": "Hex color string for highlight/badge."
+        },
+        "headlineSizeSp": {
+          "type": "integer",
+          "description": "Headline font size."
+        },
+        "headlineX": {
+          "type": "integer",
+          "description": "Normalized X coordinate (0-100) for headline."
+        },
+        "headlineY": {
+          "type": "integer",
+          "description": "Normalized Y coordinate (0-100) for headline."
+        },
+        "exposure": {
+          "type": "integer",
+          "description": "Color grading exposure (-100 to 100)."
+        },
+        "contrast": {
+          "type": "integer",
+          "description": "Color grading contrast (-100 to 100)."
+        },
+        "saturation": {
+          "type": "integer",
+          "description": "Color grading saturation (-100 to 100)."
+        },
+        "temperature": {
+          "type": "integer",
+          "description": "Color grading temperature (-100 to 100)."
+        },
+        "vignette": {
+          "type": "integer",
+          "description": "Vignette intensity (0 to 100)."
+        },
+        "backgroundBlur": {
+          "type": "integer",
+          "description": "Background blur intensity (0 to 100)."
+        },
+        "localImagePath": {
+          "type": "string",
+          "description": "Device-local file path for cached high-res background bitmap."
+        },
+        "layersSummary": {
+          "type": "array",
+          "description": "Bounded list of layer descriptors (max 25)."
+        },
+        "isTemplate": {
+          "type": "boolean",
+          "description": "Whether saved as reusable template."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Update server timestamp via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "videoTopic",
+        "headline",
+        "subheadline",
+        "category",
+        "visualStyle",
+        "realism",
+        "aspectRatio",
+        "compositionPreset",
+        "width",
+        "height",
+        "aiPrompt",
+        "artDirectionSummary",
+        "headlineFont",
+        "headlineColorHex",
+        "accentColorHex",
+        "headlineSizeSp",
+        "headlineX",
+        "headlineY",
+        "exposure",
+        "contrast",
+        "saturation",
+        "temperature",
+        "vignette",
+        "backgroundBlur",
+        "localImagePath",
+        "layersSummary",
+        "isTemplate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "GenerationHistoryItem": {
+      "title": "GenerationHistoryItem",
+      "description": "Stores an AI art direction and image generation record.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID."
+        },
+        "videoTopic": {
+          "type": "string",
+          "description": "Input video topic."
+        },
+        "suggestedHeadline": {
+          "type": "string",
+          "description": "AI suggested or user headline."
+        },
+        "category": {
+          "type": "string",
+          "description": "Selected category."
+        },
+        "visualStyle": {
+          "type": "string",
+          "description": "Selected visual style."
+        },
+        "realism": {
+          "type": "string",
+          "description": "Selected realism mode."
+        },
+        "aspectRatio": {
+          "type": "string",
+          "description": "Selected aspect ratio."
+        },
+        "compositionPreset": {
+          "type": "string",
+          "description": "Selected or recommended composition."
+        },
+        "mainSubject": {
+          "type": "string",
+          "description": "Art director main subject description."
+        },
+        "lightingSetup": {
+          "type": "string",
+          "description": "Art director lighting setup."
+        },
+        "colorPalette": {
+          "type": "string",
+          "description": "Art director color palette."
+        },
+        "generatedPrompt": {
+          "type": "string",
+          "description": "Full photographic prompt sent to image generator."
+        },
+        "modelUsed": {
+          "type": "string",
+          "description": "AI model identifier."
+        },
+        "localImagePath": {
+          "type": "string",
+          "description": "Local file path of generated image."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "videoTopic",
+        "suggestedHeadline",
+        "category",
+        "visualStyle",
+        "realism",
+        "aspectRatio",
+        "compositionPreset",
+        "mainSubject",
+        "lightingSetup",
+        "colorPalette",
+        "generatedPrompt",
+        "modelUsed",
+        "localImagePath",
+        "createdAt"
+      ]
+    },
+    "BrandKit": {
+      "title": "BrandKit",
+      "description": "Stores a creator's brand typography, color palette, and channel preset.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID."
+        },
+        "brandName": {
+          "type": "string",
+          "description": "Brand or channel name."
+        },
+        "primaryFont": {
+          "type": "string",
+          "description": "Primary headline font family."
+        },
+        "secondaryFont": {
+          "type": "string",
+          "description": "Secondary subheadline font family."
+        },
+        "primaryColorHex": {
+          "type": "string",
+          "description": "Primary text hex color."
+        },
+        "secondaryColorHex": {
+          "type": "string",
+          "description": "Secondary text hex color."
+        },
+        "accentColorHex": {
+          "type": "string",
+          "description": "Badge/highlight accent hex color."
+        },
+        "defaultStyle": {
+          "type": "string",
+          "description": "Preferred visual style preset."
+        },
+        "channelTag": {
+          "type": "string",
+          "description": "Optional watermark or badge label."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp via FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Update server timestamp via FieldValue.serverTimestamp()."
+        }
+      },
+      "required": [
+        "userId",
+        "brandName",
+        "primaryFont",
+        "secondaryFont",
+        "primaryColorHex",
+        "secondaryColorHex",
+        "accentColorHex",
+        "defaultStyle",
+        "channelTag",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "User profile and studio preferences scoped by userId."
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": {
+        "$ref": "#/entities/ThumbnailProject"
+      },
+      "description": "Saved thumbnail projects and templates owned by userId."
+    },
+    "/users/{userId}/history/{historyId}": {
+      "schema": {
+        "$ref": "#/entities/GenerationHistoryItem"
+      },
+      "description": "AI art direction and thumbnail generation history owned by userId."
+    },
+    "/users/{userId}/brand_kits/{brandKitId}": {
+      "schema": {
+        "$ref": "#/entities/BrandKit"
+      },
+      "description": "Creator brand kits owned by userId."
+    }
+  }
+}

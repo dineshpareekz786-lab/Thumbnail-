@@ -1,0 +1,261 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 1: Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Entity Validation Helpers (Pillar 2)
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100 &&
+             (!('email' in data) || data.email == null || (data.email is string && data.email.size() <= 200)) &&
+             (!('photoUrl' in data) || data.photoUrl == null || (data.photoUrl is string && data.photoUrl.size() <= 500)) &&
+             data.defaultCategory is string && data.defaultCategory.size() >= 1 && data.defaultCategory.size() <= 60 &&
+             data.defaultStyle is string && data.defaultStyle.size() >= 1 && data.defaultStyle.size() <= 60 &&
+             data.defaultRealism is string && data.defaultRealism.size() >= 1 && data.defaultRealism.size() <= 60 &&
+             data.defaultAspectRatio is string && data.defaultAspectRatio.size() >= 1 && data.defaultAspectRatio.size() <= 30 &&
+             data.preferredAiModel is string && data.preferredAiModel.size() >= 1 && data.preferredAiModel.size() <= 80 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidThumbnailProject(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 150 &&
+             data.videoTopic is string && data.videoTopic.size() >= 1 && data.videoTopic.size() <= 500 &&
+             data.headline is string && data.headline.size() <= 120 &&
+             data.subheadline is string && data.subheadline.size() <= 150 &&
+             data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+             data.visualStyle is string && data.visualStyle.size() >= 1 && data.visualStyle.size() <= 60 &&
+             data.realism is string && data.realism.size() >= 1 && data.realism.size() <= 60 &&
+             data.aspectRatio is string && data.aspectRatio.size() >= 1 && data.aspectRatio.size() <= 30 &&
+             data.compositionPreset is string && data.compositionPreset.size() >= 1 && data.compositionPreset.size() <= 80 &&
+             data.width is int && data.width >= 100 && data.width <= 4096 &&
+             data.height is int && data.height >= 100 && data.height <= 4096 &&
+             data.aiPrompt is string && data.aiPrompt.size() <= 2500 &&
+             data.artDirectionSummary is string && data.artDirectionSummary.size() <= 2000 &&
+             data.headlineFont is string && data.headlineFont.size() >= 1 && data.headlineFont.size() <= 60 &&
+             data.headlineColorHex is string && data.headlineColorHex.size() >= 4 && data.headlineColorHex.size() <= 12 &&
+             data.accentColorHex is string && data.accentColorHex.size() >= 4 && data.accentColorHex.size() <= 12 &&
+             data.headlineSizeSp is int && data.headlineSizeSp >= 12 && data.headlineSizeSp <= 160 &&
+             data.headlineX is int && data.headlineX >= 0 && data.headlineX <= 100 &&
+             data.headlineY is int && data.headlineY >= 0 && data.headlineY <= 100 &&
+             data.exposure is int && data.exposure >= -100 && data.exposure <= 100 &&
+             data.contrast is int && data.contrast >= -100 && data.contrast <= 100 &&
+             data.saturation is int && data.saturation >= -100 && data.saturation <= 100 &&
+             data.temperature is int && data.temperature >= -100 && data.temperature <= 100 &&
+             data.vignette is int && data.vignette >= 0 && data.vignette <= 100 &&
+             data.backgroundBlur is int && data.backgroundBlur >= 0 && data.backgroundBlur <= 100 &&
+             data.localImagePath is string && data.localImagePath.size() <= 500 &&
+             data.layersSummary is list && data.layersSummary.size() <= 25 &&
+             (data.layersSummary.size() == 0 || (data.layersSummary[0] is string && data.layersSummary[0].size() <= 500)) &&
+             data.isTemplate is bool &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidGenerationHistoryItem(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.videoTopic is string && data.videoTopic.size() >= 1 && data.videoTopic.size() <= 500 &&
+             data.suggestedHeadline is string && data.suggestedHeadline.size() <= 120 &&
+             data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+             data.visualStyle is string && data.visualStyle.size() >= 1 && data.visualStyle.size() <= 60 &&
+             data.realism is string && data.realism.size() >= 1 && data.realism.size() <= 60 &&
+             data.aspectRatio is string && data.aspectRatio.size() >= 1 && data.aspectRatio.size() <= 30 &&
+             data.compositionPreset is string && data.compositionPreset.size() >= 1 && data.compositionPreset.size() <= 80 &&
+             data.mainSubject is string && data.mainSubject.size() <= 500 &&
+             data.lightingSetup is string && data.lightingSetup.size() <= 500 &&
+             data.colorPalette is string && data.colorPalette.size() <= 500 &&
+             data.generatedPrompt is string && data.generatedPrompt.size() >= 1 && data.generatedPrompt.size() <= 2500 &&
+             data.modelUsed is string && data.modelUsed.size() >= 1 && data.modelUsed.size() <= 80 &&
+             data.localImagePath is string && data.localImagePath.size() <= 500 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidBrandKit(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.brandName is string && data.brandName.size() >= 1 && data.brandName.size() <= 100 &&
+             data.primaryFont is string && data.primaryFont.size() >= 1 && data.primaryFont.size() <= 60 &&
+             data.secondaryFont is string && data.secondaryFont.size() >= 1 && data.secondaryFont.size() <= 60 &&
+             data.primaryColorHex is string && data.primaryColorHex.size() >= 4 && data.primaryColorHex.size() <= 12 &&
+             data.secondaryColorHex is string && data.secondaryColorHex.size() >= 4 && data.secondaryColorHex.size() <= 12 &&
+             data.accentColorHex is string && data.accentColorHex.size() >= 4 && data.accentColorHex.size() <= 12 &&
+             data.defaultStyle is string && data.defaultStyle.size() >= 1 && data.defaultStyle.size() <= 60 &&
+             data.channelTag is string && data.channelTag.size() <= 80 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // Collection Rules: /users/{userId}
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidUserProfile(incoming()) &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'defaultCategory', 'defaultStyle',
+                         'defaultRealism', 'defaultAspectRatio', 'preferredAiModel',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'email', 'photoUrl', 'defaultCategory',
+                         'defaultStyle', 'defaultRealism', 'defaultAspectRatio',
+                         'preferredAiModel', 'createdAt', 'updatedAt'
+                       ]);
+
+      allow update: if isValidUserProfile(incoming()) &&
+                       isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'email', 'photoUrl', 'defaultCategory',
+                         'defaultStyle', 'defaultRealism', 'defaultAspectRatio',
+                         'preferredAiModel', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Subcollection: /users/{userId}/projects/{projectId}
+      match /projects/{projectId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(projectId);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+        allow create: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(projectId) &&
+                         isValidThumbnailProject(incoming()) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'videoTopic', 'headline', 'subheadline',
+                           'category', 'visualStyle', 'realism', 'aspectRatio', 'compositionPreset',
+                           'width', 'height', 'aiPrompt', 'artDirectionSummary',
+                           'headlineFont', 'headlineColorHex', 'accentColorHex',
+                           'headlineSizeSp', 'headlineX', 'headlineY',
+                           'exposure', 'contrast', 'saturation', 'temperature',
+                           'vignette', 'backgroundBlur', 'localImagePath',
+                           'layersSummary', 'isTemplate', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'videoTopic', 'headline', 'subheadline',
+                           'category', 'visualStyle', 'realism', 'aspectRatio', 'compositionPreset',
+                           'width', 'height', 'aiPrompt', 'artDirectionSummary',
+                           'headlineFont', 'headlineColorHex', 'accentColorHex',
+                           'headlineSizeSp', 'headlineX', 'headlineY',
+                           'exposure', 'contrast', 'saturation', 'temperature',
+                           'vignette', 'backgroundBlur', 'localImagePath',
+                           'layersSummary', 'isTemplate', 'createdAt', 'updatedAt'
+                         ]);
+
+        allow update: if isValidThumbnailProject(incoming()) &&
+                         isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(projectId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'videoTopic', 'headline', 'subheadline',
+                           'category', 'visualStyle', 'realism', 'aspectRatio', 'compositionPreset',
+                           'width', 'height', 'aiPrompt', 'artDirectionSummary',
+                           'headlineFont', 'headlineColorHex', 'accentColorHex',
+                           'headlineSizeSp', 'headlineX', 'headlineY',
+                           'exposure', 'contrast', 'saturation', 'temperature',
+                           'vignette', 'backgroundBlur', 'localImagePath',
+                           'layersSummary', 'isTemplate', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(projectId);
+      }
+
+      // Subcollection: /users/{userId}/history/{historyId}
+      match /history/{historyId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(historyId);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+        allow create: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(historyId) &&
+                         isValidGenerationHistoryItem(incoming()) &&
+                         incoming().keys().hasAll([
+                           'userId', 'videoTopic', 'suggestedHeadline', 'category',
+                           'visualStyle', 'realism', 'aspectRatio', 'compositionPreset',
+                           'mainSubject', 'lightingSetup', 'colorPalette',
+                           'generatedPrompt', 'modelUsed', 'localImagePath', 'createdAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'videoTopic', 'suggestedHeadline', 'category',
+                           'visualStyle', 'realism', 'aspectRatio', 'compositionPreset',
+                           'mainSubject', 'lightingSetup', 'colorPalette',
+                           'generatedPrompt', 'modelUsed', 'localImagePath', 'createdAt'
+                         ]);
+
+        allow update: if false;
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(historyId);
+      }
+
+      // Subcollection: /users/{userId}/brand_kits/{brandKitId}
+      match /brand_kits/{brandKitId} {
+        allow get: if isOwner(userId) && isValidId(userId) && isValidId(brandKitId);
+        allow list: if isOwner(userId) && existing().userId == request.auth.uid;
+
+        allow create: if isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(brandKitId) &&
+                         isValidBrandKit(incoming()) &&
+                         incoming().keys().hasAll([
+                           'userId', 'brandName', 'primaryFont', 'secondaryFont',
+                           'primaryColorHex', 'secondaryColorHex', 'accentColorHex',
+                           'defaultStyle', 'channelTag', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'brandName', 'primaryFont', 'secondaryFont',
+                           'primaryColorHex', 'secondaryColorHex', 'accentColorHex',
+                           'defaultStyle', 'channelTag', 'createdAt', 'updatedAt'
+                         ]);
+
+        allow update: if isValidBrandKit(incoming()) &&
+                         isOwner(userId) &&
+                         isValidId(userId) &&
+                         isValidId(brandKitId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'brandName', 'primaryFont', 'secondaryFont',
+                           'primaryColorHex', 'secondaryColorHex', 'accentColorHex',
+                           'defaultStyle', 'channelTag', 'updatedAt'
+                         ]);
+
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(brandKitId);
+      }
+    }
+  }
+}

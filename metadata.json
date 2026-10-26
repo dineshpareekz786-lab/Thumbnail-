@@ -1,0 +1,6 @@
+{
+  "name": "Thumbnail AI Studio",
+  "description": "Professional AI-powered YouTube thumbnail design studio with art direction, photorealistic generation, smart typography, and layer-based editing.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

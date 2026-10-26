@@ -1,11 +1,29 @@
-<div align="center">
+# Thumbnail AI Studio
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+[![Build & Publish Android Debug APK](https://github.com/dineshpareekz786-lab/Ai-thumbnail-/actions/workflows/android-apk-release.yml/badge.svg)](https://github.com/dineshpareekz786-lab/Ai-thumbnail-/actions/workflows/android-apk-release.yml)
 
-  <h1>Built with AI Studio</h2>
+**Thumbnail AI Studio** is a native Android application built with Kotlin, Jetpack Compose, Firebase Authentication, Cloud Firestore, and Firebase AI Logic (Gemini API) for creating realistic, art-directed YouTube thumbnails.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+---
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Direct APK Download
 
-</div>
+Once the GitHub Actions workflow (`Build & Publish Android Debug APK`) completes on `dineshpareekz786-lab/Ai-thumbnail-`, download the latest signed, installable Android APK directly using the permanent link below:
+
+- **Permanent Direct APK Download URL:**
+  https://github.com/dineshpareekz786-lab/Ai-thumbnail-/releases/latest/download/app-debug.apk
+
+- **All GitHub Releases Page:**
+  https://github.com/dineshpareekz786-lab/Ai-thumbnail-/releases
+
+- **GitHub Actions Build Status:**
+  https://github.com/dineshpareekz786-lab/Ai-thumbnail-/actions
+
+---
+
+## Application Details
+
+- **App Name:** Thumbnail AI Studio
+- **Application ID:** `com.aistudio.thumbnailstudio.vxkmpq`
+- **Minimum SDK:** Android 7.0 (API 24)
+- **Target / Compile SDK:** Android 16 (API 36.1)
